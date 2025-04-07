@@ -120,7 +120,8 @@ class _LoginPageState extends State<LoginPage> {
                                 hintText: 'Enter your Email',
                                 hintStyle: TextStyle(
                                   fontFamily: 'Sans',
-                                  color: const Color.fromARGB(255, 157, 157, 157),
+                                  color:
+                                      const Color.fromARGB(255, 157, 157, 157),
                                 ),
                               ),
                               style: TextStyle(
@@ -154,7 +155,8 @@ class _LoginPageState extends State<LoginPage> {
                                 hintText: 'Enter your Password',
                                 hintStyle: TextStyle(
                                   fontFamily: 'Sans',
-                                  color: const Color.fromARGB(255, 157, 157, 157),
+                                  color:
+                                      const Color.fromARGB(255, 157, 157, 157),
                                 ),
                               ),
                               style: TextStyle(
@@ -196,9 +198,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white,
-                    strokeWidth: 10,
-                    )
+                    ? CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      )
                     : Text(
                         'Login',
                         style: TextStyle(

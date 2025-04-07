@@ -373,7 +373,7 @@ class _MapScreenState extends State<MapScreen> {
           await directionService.getDirections(userSelectionObject);
       print('Fetched Coordinates: $coordinates'); // Debugging
       setState(() {
-        _routeCoordinates = coordinates;
+        _routeCoordinates = coordinates.expand((list) => list).toList();
       });
     } catch (e) {
       print('Error fetching route: $e');
@@ -477,188 +477,154 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Color.fromARGB(255, 19, 16, 25),
-    appBar: AppBar(
-      title: Text(
-        'Route Map',
-        style: TextStyle(color: Colors.white70),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       backgroundColor: Color.fromARGB(255, 19, 16, 25),
-      foregroundColor: Colors.white70,
-    ),
-    body: _isLoading
-        ? Center(child: CircularProgressIndicator())
-        : Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedMode = 'driving';
-                      });
-                      _fetchRouteAndDistanceMatrix();
-                    },
-                    child: Text(
-                      'Driving',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedMode == 'driving'
-                          ? Color.fromARGB(255, 250, 30, 78)
-                          : Color.fromARGB(255, 19, 16, 25),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedMode = 'walking';
-                      });
-                      _fetchRouteAndDistanceMatrix();
-                    },
-                    child: Text(
-                      'Walking',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedMode == 'walking'
-                          ? Color.fromARGB(255, 250, 30, 78)
-                          : Color.fromARGB(255, 19, 16, 25),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedMode = 'transit';
-                      });
-                      _fetchRouteAndDistanceMatrix();
-                    },
-                    child: Text(
-                      'Transit',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedMode == 'transit'
-                          ? Color.fromARGB(255, 250, 30, 78)
-                          : Color.fromARGB(255, 19, 16, 25),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                margin: EdgeInsets.all(19.0),
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                height: 300,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.0),
-                  child: GoogleMap(
-                    onMapCreated: (controller) {
-                      _mapController = controller;
-                      final bounds = LatLngBounds(
-                        southwest: LatLng(
-                          min(widget.sourceLatLng.latitude,
-                              widget.destinationLatLng.latitude),
-                          min(widget.sourceLatLng.longitude,
-                              widget.destinationLatLng.longitude),
-                        ),
-                        northeast: LatLng(
-                          max(widget.sourceLatLng.latitude,
-                              widget.destinationLatLng.latitude),
-                          max(widget.sourceLatLng.longitude,
-                              widget.destinationLatLng.longitude),
-                        ),
-                      );
-                      _mapController.animateCamera(
-                          CameraUpdate.newLatLngBounds(bounds, 50));
-                    },
-                    initialCameraPosition: CameraPosition(
-                      target: LatLng(
-                        (widget.sourceLatLng.latitude +
-                                widget.destinationLatLng.latitude) /
-                            2,
-                        (widget.sourceLatLng.longitude +
-                                widget.destinationLatLng.longitude) /
-                            2,
+      appBar: AppBar(
+        title: Text(
+          'Route Map',
+          style: TextStyle(color: Colors.white70),
+        ),
+        backgroundColor: Color.fromARGB(255, 19, 16, 25),
+        foregroundColor: Colors.white70,
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedMode = 'driving';
+                        });
+                        _fetchRouteAndDistanceMatrix();
+                      },
+                      child: Text(
+                        'Driving',
+                        style: TextStyle(color: Colors.white),
                       ),
-                      zoom: 12,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedMode == 'driving'
+                            ? Color.fromARGB(255, 250, 30, 78)
+                            : Color.fromARGB(255, 19, 16, 25),
+                      ),
                     ),
-                    markers: {
-                      Marker(
-                        markerId: MarkerId('source'),
-                        position: widget.sourceLatLng,
-                        infoWindow: InfoWindow(title: 'Source'),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedMode = 'walking';
+                        });
+                        _fetchRouteAndDistanceMatrix();
+                      },
+                      child: Text(
+                        'Walking',
+                        style: TextStyle(color: Colors.white),
                       ),
-                      Marker(
-                        markerId: MarkerId('destination'),
-                        position: widget.destinationLatLng,
-                        infoWindow: InfoWindow(title: 'Destination'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedMode == 'walking'
+                            ? Color.fromARGB(255, 250, 30, 78)
+                            : Color.fromARGB(255, 19, 16, 25),
                       ),
-                    },
-                    polylines: {
-                      if (_routeCoordinates.isNotEmpty)
-                        Polyline(
-                          polylineId: PolylineId('route'),
-                          color: _getPolylineColor(),
-                          width: 10,
-                          points: _routeCoordinates,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedMode = 'transit';
+                        });
+                        _fetchRouteAndDistanceMatrix();
+                      },
+                      child: Text(
+                        'Transit',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _selectedMode == 'transit'
+                            ? Color.fromARGB(255, 250, 30, 78)
+                            : Color.fromARGB(255, 19, 16, 25),
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  margin: EdgeInsets.all(19.0),
+                  decoration:
+                      BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                  height: 300,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20.0),
+                    child: GoogleMap(
+                      onMapCreated: (controller) {
+                        _mapController = controller;
+                        final bounds = LatLngBounds(
+                          southwest: LatLng(
+                            min(widget.sourceLatLng.latitude,
+                                widget.destinationLatLng.latitude),
+                            min(widget.sourceLatLng.longitude,
+                                widget.destinationLatLng.longitude),
+                          ),
+                          northeast: LatLng(
+                            max(widget.sourceLatLng.latitude,
+                                widget.destinationLatLng.latitude),
+                            max(widget.sourceLatLng.longitude,
+                                widget.destinationLatLng.longitude),
+                          ),
+                        );
+                        _mapController.animateCamera(
+                            CameraUpdate.newLatLngBounds(bounds, 50));
+                      },
+                      initialCameraPosition: CameraPosition(
+                        target: LatLng(
+                          (widget.sourceLatLng.latitude +
+                                  widget.destinationLatLng.latitude) /
+                              2,
+                          (widget.sourceLatLng.longitude +
+                                  widget.destinationLatLng.longitude) /
+                              2,
                         ),
-                    },
+                        zoom: 12,
+                      ),
+                      markers: {
+                        Marker(
+                          markerId: MarkerId('destination'),
+                          position: widget.destinationLatLng,
+                          infoWindow: InfoWindow(title: 'Destination'),
+                        ),
+                      },
+                      polylines: {
+                        if (_routeCoordinates.isNotEmpty)
+                          Polyline(
+                            polylineId: PolylineId('route'),
+                            color: _getPolylineColor(),
+                            width: 5,
+                            points: _routeCoordinates,
+                          ),
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.map_outlined, color: Colors.blueAccent),
-                            SizedBox(width: 10),
-                            Text(
-                              'Distance: $distance',
-                              style: TextStyle(
-                                fontFamily: 'Sans',
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Icon(Icons.timer_outlined, color: Colors.green),
-                            SizedBox(width: 10),
-                            Text(
-                              'Duration: $duration',
-                              style: TextStyle(
-                                fontFamily: 'Sans',
-                                fontSize: 18,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 10),
-                        if (_selectedMode == 'transit')
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Row(
                             children: [
-                              Icon(Icons.attach_money_outlined,
-                                  color: Colors.red),
+                              Icon(Icons.map_outlined,
+                                  color: Colors.blueAccent),
                               SizedBox(width: 10),
                               Text(
-                                'Fare: $fare',
+                                'Distance: $distance',
                                 style: TextStyle(
                                   fontFamily: 'Sans',
                                   fontSize: 18,
@@ -666,51 +632,88 @@ Widget build(BuildContext context) {
                               ),
                             ],
                           ),
-                        if (_selectedMode == 'transit') SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Icon(Icons.eco_outlined, color: Colors.brown),
-                            SizedBox(width: 10),
-                            Text(
-                              'Carbon Emission: $carbonEmission gm',
-                              style: TextStyle(
-                                fontFamily: 'Sans',
-                                fontSize: 18,
+                          SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(Icons.timer_outlined, color: Colors.green),
+                              SizedBox(width: 10),
+                              Text(
+                                'Duration: $duration',
+                                style: TextStyle(
+                                  fontFamily: 'Sans',
+                                  fontSize: 18,
+                                ),
                               ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          if (_selectedMode == 'transit')
+                            Row(
+                              children: [
+                                Icon(Icons.attach_money_outlined,
+                                    color: Colors.red),
+                                SizedBox(width: 10),
+                                Text(
+                                  'Fare: $fare',
+                                  style: TextStyle(
+                                    fontFamily: 'Sans',
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
+                          if (_selectedMode == 'transit') SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(Icons.eco_outlined, color: Colors.brown),
+                              SizedBox(width: 10),
+                              Text(
+                                'Carbon Emission: $carbonEmission kg',
+                                style: TextStyle(
+                                  fontFamily: 'Sans',
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 10), // Add spacing before the button
-              Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => RewardNotify(username: widget.username, email:widget.email)),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 250, 30, 78), // Button color
-                    padding: EdgeInsets.symmetric(vertical: 15.0), // Control button height
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0), // Less rounded corners
+                SizedBox(height: 10), // Add spacing before the button
+                Container(
+                  margin: EdgeInsets.only(left: 20, right: 20),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RewardNotify(
+                                username: widget.username,
+                                email: widget.email)),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Color.fromARGB(255, 250, 30, 78), // Button color
+                      padding: EdgeInsets.symmetric(
+                          vertical: 15.0), // Control button height
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8.0), // Less rounded corners
+                      ),
+                      minimumSize: Size(double.infinity,
+                          50), // Make button full width and 50px tall
                     ),
-                    minimumSize: Size(double.infinity, 50), // Make button full width and 50px tall
-                  ),
-                  child: Text(
-                    'Select Journey Mode',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    child: Text(
+                      'Select Journey Mode',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-  );
-}
+              ],
+            ),
+    );
+  }
 }
